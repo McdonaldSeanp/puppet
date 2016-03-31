@@ -189,6 +189,9 @@ def prepare_installation
     opts.on('--bindir[=OPTIONAL]', 'Installation directory for binaries', 'overrides RbConfig::CONFIG["bindir"]') do |bindir|
       InstallOptions.bindir = bindir
     end
+    opts.on('--batchdir[=OPTIONAL]', 'Installation directory for windows binaries (.bat files)', 'Default [bindir]') do |bindir|
+      InstallOptions.batchdir = batchdir
+    end
     opts.on('--ruby[=OPTIONAL]', 'Ruby interpreter to use with installation', 'overrides ruby used to call install.rb') do |ruby|
       InstallOptions.ruby = ruby
     end
@@ -290,6 +293,12 @@ def prepare_installation
     bindir = RbConfig::CONFIG['bindir']
   end
 
+  if not InstallOptions.batchdir.nil?
+    batchdir = InstallOptions.batchdir
+  else
+    batchdir = bindir
+  end
+
   if not InstallOptions.sitelibdir.nil?
     sitelibdir = InstallOptions.sitelibdir
   else
@@ -327,6 +336,7 @@ def prepare_installation
   rundir = join(destdir, rundir)
   logdir = join(destdir, logdir)
   bindir = join(destdir, bindir)
+  batchdir = join(destdir, batchdir)
   mandir = join(destdir, mandir)
   sitelibdir = join(destdir, sitelibdir)
 
@@ -471,7 +481,7 @@ FileUtils.cd File.dirname(__FILE__) do
   #build_ri(ri) if InstallOptions.ri
   do_configs(configs, InstallOptions.config_dir) if InstallOptions.configs
   do_bins(bins, InstallOptions.bin_dir)
-  do_bins(windows_bins, InstallOptions.bin_dir, 'ext/windows/') if $operatingsystem == "windows"
+  do_bins(windows_bins, InstallOptions.batch_dir, 'ext/windows/') if $operatingsystem == "windows"
   do_libs(libs)
   do_man(man) unless $operatingsystem == "windows"
 end
