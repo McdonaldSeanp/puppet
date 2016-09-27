@@ -1,0 +1,17 @@
+HOSTS:
+      redhat7-64-1:
+          hypervisor: vmpooler
+          platform: el-7-x86_64
+          template: redhat-7-x86_64
+          roles:
+              - master
+              - default
+      osx1012-64-1:
+          hypervisor: vmpooler
+          platform: osx-10.12-x86_64
+          template: osx-1012-x86_64
+          roles:
+              - agent
+CONFIG:
+     nfs_server: none
+     pooling_api: http://vmpooler.delivery.puppetlabs.net/
