@@ -80,7 +80,9 @@ test_name "The Exec resource should run commands in the specified cwd" do
     end
 
     step "Errors if the user specified CWD does not exist" do
-      apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test3", {cwd: non_existant_dir, :path => path}), :expect_failures => true)
+      apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test3", {cwd: non_existant_dir, :path => path}), :expect_failures => true) do |result|
+        assert_equal(2, response.exit_code, "Exec manifest still executed with non-existant :cwd")
+      end
     end
 
     # "onlyif" testing will require some form of runnable test in the testdir for the
@@ -95,7 +97,7 @@ test_name "The Exec resource should run commands in the specified cwd" do
 
     step 'Does not run the exec if the "check" command (:onlyif or :unless) fails' do
       apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test5", {cwd: testdir, :path => path, :onlyif => "foobar"}), :expect_failures => true) do |result|
-        puts result
+        assert_equal(2, response.exit_code, "Exec manifest still executed with failed :onlyif clause")
       end
     end
 
