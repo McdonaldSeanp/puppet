@@ -151,23 +151,23 @@ test_name "The Exec resource should run commands in the specified cwd" do
       manifest_path = agent.tmpfile('apply_manifest.pp')
       create_remote_file(agent, manifest_path, exec_resource_manifest("#{cat} noaccess.txt", {:cwd => tmpdir_noaccess, :path => path}))
       if agent.platform =~ /windows/
-        on(agent, "puppet apply #{manifest_path} --detailed-exitcodes") do |result|
-          assert_equal(4, result.exit_code, "Exec manifest still executed inside restricted directory")
+        on(agent, "puppet apply #{manifest_path} --detailed-exitcodes", :acceptable_exit_codes => [4]) do |result|
+          assert_equal(4, result.exit_code, "Exec manifest still executed inside restricted directory", )
         end
       elsif agent.platform =~ /osx/
         # on MacOS we need to copy the manifest to run to the user's home dir and give the user ownership. otherwise puppet won't run on it.
         on(agent, "cp #{manifest_path} /Users/#{username}/noaccess_manifest.pp && chown #{username}:80 /Users/#{username}/noaccess_manifest.pp")
-        on(agent, "su - #{username} -c \"/opt/puppetlabs/bin/puppet apply /Users/#{username}/noaccess_manifest.pp --detailed-exitcodes\"") do |result|
+        on(agent, "su - #{username} -c \"/opt/puppetlabs/bin/puppet apply /Users/#{username}/noaccess_manifest.pp --detailed-exitcodes\"", :acceptable_exit_codes => [4]) do |result|
           assert_equal(4, result.exit_code, "Exec manifest still executed inside restricted directory")
         end
       else
         on(agent, "chown #{username} #{manifest_path}")
         if agent.platform =~ /solaris|aix/
-          on(agent, "su - #{username} -c \"/opt/puppetlabs/bin/puppet apply #{manifest_path} --detailed-exitcodes\"") do |result|
+          on(agent, "su - #{username} -c \"/opt/puppetlabs/bin/puppet apply #{manifest_path} --detailed-exitcodes\"", :acceptable_exit_codes => [4]) do |result|
             assert_equal(4, result.exit_code, "Exec manifest still executed inside restricted directory")
           end
         else
-          on(agent, "su #{username} -c \"/opt/puppetlabs/bin/puppet apply #{manifest_path} --detailed-exitcodes\"") do |result|
+          on(agent, "su #{username} -c \"/opt/puppetlabs/bin/puppet apply #{manifest_path} --detailed-exitcodes\"", :acceptable_exit_codes => [4]) do |result|
             assert_equal(4, result.exit_code, "Exec manifest still executed inside restricted directory")
           end
         end
