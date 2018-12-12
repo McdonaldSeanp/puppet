@@ -88,7 +88,7 @@ test_name "The Exec resource should run commands in the specified cwd" do
       create_remote_file(agent, manifest_path, exec_resource_manifest("#{cat} test_seperatedir.txt", {cwd: testdir, :path => path, :onlyif => "#{cat} test_seperatedir_onlyif.txt"}))
       # puppet runs will return with exit code '2' when puppet actually executes a change. Since running an exec counts as 'executing a change', you can expect puppet to return '2' when
       # the exec actually executes. This test relies on that API behavior to identify that the exec ran.
-      on(agent, command["puppet apply #{manifest_path} --detailed-exitcodes"], :acceptable_exit_codes => [2])
+      on(agent, "puppet apply #{manifest_path} --detailed-exitcodes", :acceptable_exit_codes => [2])
     end
 
     step 'Does not run the exec if the "check" command (:onlyif or :unless) fails' do
@@ -96,7 +96,7 @@ test_name "The Exec resource should run commands in the specified cwd" do
       create_remote_file(agent, manifest_path, exec_resource_manifest("#{cat} test_seperatedir.txt", {cwd: testdir, :path => path, :onlyif => "false"}))
       # This test relies on the opposite behavior as the preceeding test: since puppet will return '0' when no change is made we can rely on that behavior to identify that the
       # puppet run did not execute the exec (because the :onlyif failed)
-      on(agent, command["puppet apply #{manifest_path} --detailed-exitcodes"], :acceptable_exit_codes => [0])
+      on(agent, "puppet apply #{manifest_path} --detailed-exitcodes", :acceptable_exit_codes => [0])
     end
 
     # tmpdir_noaccess = agent.tmpdir("mock_dir")
