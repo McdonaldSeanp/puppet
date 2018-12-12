@@ -51,7 +51,6 @@ test_name "The Exec resource should run commands in the specified cwd" do
     next if agent == master
 
     testdir = agent.tmpdir("mock_testdir")
-    create_remote_file(agent, File.join(testdir, 'testdir_onlyif.txt'), 'testing')
     if agent.platform =~ /windows/
       path = 'C:\Windows\System32'
       echo_to = 'cmd.exe /c echo testing >'
@@ -84,18 +83,18 @@ test_name "The Exec resource should run commands in the specified cwd" do
       apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test3", {cwd: non_existant_dir, :path => path}), :expect_failures => true)
     end
 
+    # "onlyif" testing will require some form of runnable test in the testdir for the
+    # onlyif clause to actually execute. The runnable test we will use is attempting to
+    # 'cat' an unqualified file that will only exist in the testdir
+    create_remote_file(agent, File.join(testdir, 'testdir_onlyif.txt'), 'testing')
+
     step 'Runs a "check" command (:onlyif or :unless) in the user specified CWD' do
-      # puppet runs will return with exit code '2' when puppet actually executes a change. Since running an exec counts as 'executing a change', you can expect puppet to return '2' when
-      # the exec actually executes. This test relies on that API behavior to identify that the exec ran.
-      apply_manifest_on(agent, exec_resource_manifest("#{cat} test_seperatedir.txt", {cwd: testdir, :path => path, :onlyif => "#{cat} testdir_onlyif.txt"}), :expect_changes => true)
+      apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test4", {cwd: testdir, :path => path, :onlyif => "#{cat} testdir_onlyif.txt"}), :expect_changes => true)
+      test_file(agent, File.join(testdir, 'cwd_test4'), 'Exec did not create file in test directory, exec resource not using :cwd given')
     end
 
     step 'Does not run the exec if the "check" command (:onlyif or :unless) fails' do
-      manifest_path = agent.tmpfile('apply_manifest.pp')
-      create_remote_file(agent, manifest_path, exec_resource_manifest("#{cat} test_seperatedir.txt", {cwd: testdir, :path => path, :onlyif => "false"}))
-      # This test relies on the opposite behavior as the preceeding test: since puppet will return '0' when no change is made we can rely on that behavior to identify that the
-      # puppet run did not execute the exec (because the :onlyif failed)
-      on(agent, "puppet apply #{manifest_path} --detailed-exitcodes", :acceptable_exit_codes => [0])
+      apply_manifest_on(agent, exec_resource_manifest("#{echo_to} cwd_test5", {cwd: testdir, :path => path, :onlyif => "false"}), :expect_failures => true)
     end
 
     # tmpdir_noaccess = agent.tmpdir("mock_dir")
