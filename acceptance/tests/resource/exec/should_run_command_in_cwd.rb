@@ -116,6 +116,9 @@ test_name "The Exec resource should run commands in the specified cwd" do
       elsif agent.platform =~ /osx/
         # we need to create the user directory ourselves in order for macos users to successfully login
         on(agent, "mkdir /Users/#{username} && chown -R #{username}:80 /Users/#{username}")
+      elsif agent.platform =~ /debian|ubuntu/
+        # we need to create the user directory ourselves in order for deb users to successfully login
+        on(agent, "mkdir /home/#{username} && chown -R #{username} /home/#{username}")
       end
     end
 
