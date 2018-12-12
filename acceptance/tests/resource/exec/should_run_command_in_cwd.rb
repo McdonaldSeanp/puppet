@@ -51,7 +51,7 @@ test_name "The Exec resource should run commands in the specified cwd" do
     next if agent == master
 
     testdir = agent.tmpdir("mock_testdir")
-    create_remote_file(agent, File.join(testdir, 'testdir_onlyif.txt'))
+    create_remote_file(agent, File.join(testdir, 'testdir_onlyif.txt'), 'testing')
     if agent.platform =~ /windows/
       path = 'C:\Windows\System32'
       echo_to = 'cmd.exe /c echo testing >'
