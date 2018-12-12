@@ -54,11 +54,13 @@ test_name "The Exec resource should run commands in the specified cwd" do
     if agent.platform =~ /windows/
       path = 'C:\Windows\System32'
       echo_to = 'cmd.exe /c echo testing >'
+      cat = 'cmd.exe /c type'
       non_existant_dir = 'C:\does_not_exist'
       origin_working_dir = on(agent, 'cmd.exe /c echo %CD%').stdout.chomp
     else
       path = '/usr/bin:/usr/sbin:/bin:/sbin'
       echo_to = 'echo testing >'
+      cat = 'cat'
       non_existant_dir = '/does_not_exist'
       origin_working_dir = on(agent, 'pwd').stdout.chomp
     end
