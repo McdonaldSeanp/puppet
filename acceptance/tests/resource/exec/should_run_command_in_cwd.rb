@@ -58,7 +58,7 @@ test_name "The Exec resource should run commands in the specified cwd" do
       origin_working_dir = on(agent, 'cmd.exe /c echo %CD%').stdout.chomp
     else
       path = '/usr/bin:/usr/sbin:/bin:/sbin'
-      echo_to = 'echo testing'
+      echo_to = 'echo testing >'
       non_existant_dir = '/does_not_exist'
       origin_working_dir = on(agent, 'pwd').stdout.chomp
     end
